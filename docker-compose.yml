@@ -1,0 +1,50 @@
+version: '3'
+
+
+services:
+
+  php:
+    build: .
+    container_name: laravel_app
+    volumes:
+      - ./src:/var/www/
+    networks:
+      - ab_network
+    external_links:
+      - django_app
+
+  nginx:
+    image: nginx:1.13-alpine
+    container_name: webserver
+    working_dir: /var/www
+    networks:
+      - ab_network
+    depends_on:
+      - php
+    volumes:
+      - ./nginx:/etc/nginx/conf.d/
+    ports:
+      - 8001:80
+
+  mysql:
+    image: mysql:5.7
+    networks:
+      - ab_network
+    volumes:
+      - mysqldata:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=sample
+      - MYSQL_USER=user
+      - MYSQL_PASSWORD=password
+    ports:
+      - "3306:3306"
+
+
+volumes:
+  mysqldata:
+
+
+networks:
+  ab_network:
+    external: true
