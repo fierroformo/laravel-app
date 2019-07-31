@@ -1,6 +1,6 @@
 FROM php:7.2-fpm
 
-COPY src/composer.lock src/composer.json /var/www/
+#COPY src/composer.lock src/composer.json /var/www/
 
 RUN apt-get update && apt-get install -y \
     build-essential \
@@ -24,6 +24,12 @@ ADD ./src /var/www
 
 RUN composer install
 
-RUN chmod -R 777 /var/www/storage/logs/
+# agregar usuario para la aplicación laravel
+RUN groupadd -g 1000 www
+RUN useradd -u 1000 -ms /bin/bash -g www www
 
+# copiar los permisos del directorio de la aplicación
+COPY --chown=www:www . /var/www
 
+# Cambiar al usuario www
+USER www
